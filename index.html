@@ -12,21 +12,29 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
     body {
       min-height: 100vh;
       min-height: 100dvh;
       background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 40%, #f3e5f5 100%);
       font-family: 'DM Sans', sans-serif;
       -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
     }
 
     .wrap {
       min-height: 100vh;
       min-height: 100dvh;
-      padding: 1.5rem 1rem env(safe-area-inset-bottom, 1rem);
+      padding: 1.5rem 1rem;
       padding-top: max(1.5rem, env(safe-area-inset-top));
       padding-left: max(1rem, env(safe-area-inset-left));
       padding-right: max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
       position: relative;
       overflow: hidden;
       display: flex;
@@ -105,7 +113,6 @@
       background: rgba(194,24,91,0.08);
       border-radius: 99px;
       font-weight: 500;
-      /* Make tap target larger */
       min-height: 36px;
     }
     .video-link:active { background: rgba(194,24,91,0.18); }
@@ -120,10 +127,41 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 11px 0;
+      padding: 11px 10px;
       border-bottom: 1px solid rgba(216,120,160,0.1);
+      border-radius: 12px;
+      margin: 2px 0;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: background 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
     .exercise:last-of-type { border-bottom: none; }
+
+    .exercise::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(194,24,91,0.1);
+      transform: scaleX(0);
+      transform-origin: left;
+      border-radius: 12px;
+      pointer-events: none;
+    }
+    .exercise.pressing::before {
+      transform: scaleX(1);
+      transition: transform 0.8s linear;
+    }
+
+    .exercise.done {
+      background: linear-gradient(135deg, rgba(200,230,201,0.65), rgba(165,214,167,0.45));
+      border-color: rgba(76,175,80,0.2) !important;
+      box-shadow: 0 2px 14px rgba(76,175,80,0.13);
+    }
+    .exercise.done::before { display: none; }
 
     .num {
       width: 32px; height: 32px;
@@ -136,18 +174,17 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      text-decoration: none;
-      /* Larger tap target */
-      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      z-index: 1;
+      transition: background 0.35s;
+      pointer-events: none;
     }
-    .num:active {
-      transform: scale(1.12);
-      box-shadow: 0 4px 12px rgba(194,24,91,0.3);
-    }
+    .exercise.done .num { background: linear-gradient(135deg, #66bb6a, #43a047); }
+    .check-icon { display: none; }
+    .exercise.done .check-icon { display: block; }
+    .exercise.done .num-text { display: none; }
 
-    .ex-info { flex: 1; min-width: 0; }
+    .ex-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
 
     .ex-name {
       font-size: clamp(13px, 3.6vw, 15px);
@@ -155,14 +192,18 @@
       color: #4a0e2a;
       margin: 0 0 3px;
       line-height: 1.3;
+      transition: color 0.3s;
     }
+    .exercise.done .ex-name { color: #2e7d32; }
 
     .ex-detail {
       font-size: clamp(11px, 2.8vw, 12px);
       color: #ad6b8a;
       margin: 0;
       line-height: 1.4;
+      transition: color 0.3s;
     }
+    .exercise.done .ex-detail { color: #558b2f; }
 
     .right-col {
       display: flex;
@@ -170,6 +211,8 @@
       align-items: flex-end;
       gap: 5px;
       flex-shrink: 0;
+      position: relative;
+      z-index: 1;
     }
 
     .sets-label {
@@ -177,7 +220,20 @@
       font-weight: 500;
       color: #880e4f;
       white-space: nowrap;
+      transition: color 0.3s;
     }
+    .exercise.done .sets-label { color: #2e7d32; }
+
+    .set-dots { display: flex; gap: 5px; align-items: center; }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid #f48fb1;
+      background: transparent;
+      transition: background 0.25s, border-color 0.25s, transform 0.2s;
+    }
+    .dot.filled { background: #c2185b; border-color: #c2185b; transform: scale(1.2); }
+    .exercise.done .dot { background: #43a047; border-color: #43a047; }
 
     .ts-btn {
       font-size: clamp(10px, 2.6vw, 11px);
@@ -191,26 +247,201 @@
       font-weight: 500;
       white-space: nowrap;
       text-decoration: none;
-      display: inline-block;
-      transition: background 0.15s;
-      min-height: 28px;
       display: flex;
       align-items: center;
+      min-height: 28px;
       -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+      position: relative;
+      z-index: 2;
     }
-    .ts-btn:active { background: rgba(194,24,91,0.18); }
+    .ts-btn:active { background: rgba(194,24,91,0.22); }
+
+    .status-pill {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
+      background: #c2185b;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 18px;
+      border-radius: 99px;
+      pointer-events: none;
+      opacity: 0;
+      white-space: nowrap;
+      z-index: 20;
+      transition: opacity 0.18s, transform 0.18s;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 4px 14px rgba(194,24,91,0.25);
+    }
+    .status-pill.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .exercise.done .status-pill { background: #43a047; }
+
+    /* undo pill (red-ish) */
+    .undo-pill {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
+      background: #e57373;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 18px;
+      border-radius: 99px;
+      pointer-events: none;
+      opacity: 0;
+      white-space: nowrap;
+      z-index: 21;
+      transition: opacity 0.18s, transform 0.18s;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 4px 14px rgba(229,115,115,0.3);
+    }
+    .undo-pill.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    .hint {
+      font-size: 11px;
+      color: #ad6b8a;
+      text-align: center;
+      margin-top: 0.6rem;
+      opacity: 0.85;
+      font-style: italic;
+      line-height: 1.6;
+    }
 
     .footer {
-      margin-top: 1rem;
+      margin-top: 0.75rem;
       font-size: clamp(11px, 2.8vw, 12px);
       color: #ad6b8a;
       text-align: center;
       font-style: italic;
       line-height: 1.7;
     }
+
+    .reset-btn {
+      display: block;
+      margin: 1rem auto 0;
+      font-size: 12px;
+      color: #ad6b8a;
+      background: none;
+      border: 1px solid rgba(216,120,160,0.35);
+      border-radius: 99px;
+      padding: 7px 20px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+    }
+    .reset-btn:active { background: rgba(216,120,160,0.12); }
+
+    /* ── Congrats overlay ── */
+    #congrats {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #congrats.show { display: flex; }
+
+    .congrats-card {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.75);
+      backdrop-filter: none;
+      border-radius: 24px;
+      padding: 1.75rem 1.5rem 1.5rem;
+      max-width: 280px;
+      width: calc(100% - 3rem);
+      box-shadow: 0 12px 40px rgba(216,120,160,0.22);
+      animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      position: relative;
+      pointer-events: all;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .congrats-card:active { cursor: grabbing; }
+
+    @keyframes popIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .congrats-x {
+      position: absolute;
+      top: 10px; right: 12px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(216,120,160,0.15);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      color: #ad6b8a;
+      font-family: 'DM Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 1;
+      padding: 0;
+    }
+    .congrats-x:active { background: rgba(216,120,160,0.3); }
+
+    .congrats-emoji { font-size: 44px; line-height: 1; margin-bottom: 0.4rem; }
+    .congrats-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: #880e4f;
+      margin-bottom: 0.3rem;
+    }
+    .congrats-sub {
+      font-size: 13px;
+      color: #ad6b8a;
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+    .congrats-close {
+      background: linear-gradient(135deg, #f48fb1, #ce93d8);
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      padding: 9px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .congrats-close:active { opacity: 0.85; }
+
+    /* ── Confetti canvas ── */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 99;
+      display: none;
+    }
+    #confetti-canvas.show { display: block; }
   </style>
 </head>
 <body>
+
+<!-- Confetti -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Congrats overlay -->
+<div id="congrats">
+  <div class="congrats-card" id="congrats-card" style="text-align:center;">
+    <button class="congrats-x" onclick="closeCongrats()">✕</button>
+    <div class="congrats-emoji">🎉</div>
+    <p class="congrats-title">Congrats, Bebu!</p>
+    <p class="congrats-sub" id="congrats-msg">You crushed every single set today. So proud of you! ♡</p>
+    <button class="congrats-close" onclick="closeCongratsAndReset()">Start fresh 🌸</button>
+  </div>
+</div>
+
 <div class="wrap">
   <div class="card">
     <div class="deco">♡</div>
@@ -220,93 +451,418 @@
 
     <hr class="divider">
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=QPTcLlOWSl4" target="_blank">1</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">1</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Hip thrusts</p>
         <p class="ex-detail">Upper back on couch/bench — bodyweight to start</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 10 reps</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=QPTcLlOWSl4" target="_blank">▶ Watch</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=-sq5i4-nVm0&t=1170s" target="_blank">2</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">2</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">RDL to front squat</p>
         <p class="ex-detail">Hinge first, neutral back — then transition to squat</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 10 reps</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=-sq5i4-nVm0&t=1170s" target="_blank">▶ 19:30</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=-sq5i4-nVm0&t=840s" target="_blank">3</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">3</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">B-stance RDL row</p>
         <p class="ex-detail">Staggered stance, hinge + row — keep back flat</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 10 reps</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=-sq5i4-nVm0&t=840s" target="_blank">▶ 14:00</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=B-aVuyhvLHU&t=19s" target="_blank">4</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">4</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Shoulder press</p>
         <p class="ex-detail">Seated or standing — control the descent</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 10 reps</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=B-aVuyhvLHU&t=19s" target="_blank">▶ Watch</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=T0Y3OBF1bNI" target="_blank">5</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">5</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Dumbbell floor press</p>
         <p class="ex-detail">Or knee push-ups if no dumbbells available</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 10 reps</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=T0Y3OBF1bNI" target="_blank">▶ Watch</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=-sq5i4-nVm0&t=1383s" target="_blank">6</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">6</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Weighted dead bug</p>
         <p class="ex-detail">Hold dumbbell at chest — slow and controlled</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 10 reps</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=-sq5i4-nVm0&t=1383s" target="_blank">▶ 23:03</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise">
-      <a class="num" href="https://www.youtube.com/watch?v=pvIjsG5Svck" target="_blank">7</a>
+    <div class="exercise" data-sets="3" data-done="0">
+      <div class="num"><span class="num-text">7</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Plank</p>
         <p class="ex-detail">Forearm or full — core tight, hips level</p>
       </div>
       <div class="right-col">
         <span class="sets-label">3 × 30 secs</span>
+        <div class="set-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <a class="ts-btn" href="https://www.youtube.com/watch?v=pvIjsG5Svck" target="_blank">▶ Watch</a>
       </div>
+      <div class="status-pill"></div>
+      <div class="undo-pill"></div>
     </div>
 
     <hr class="divider">
+    <p class="hint">Hold 0.8 sec to log a set &nbsp;·&nbsp; Double-tap to undo last set ♡</p>
     <p class="footer">Increase to 12 reps when 10 feels easy.<br>Once 12 feels easy, increase weight and return to 10 reps ♡</p>
+    <button class="reset-btn" onclick="resetAll()">Reset workout</button>
   </div>
 </div>
+
+<script>
+  const HOLD_MS = 800;
+  const DOUBLE_TAP_MS = 300;
+  const TOTAL_EXERCISES = document.querySelectorAll('.exercise').length;
+
+  // ── 20 random encouraging messages ──
+  const MESSAGES = [
+    "You crushed every single set today. So proud of you, Bebu! ♡",
+    "Look at you go, bebu. Every rep was worth it. lablab! ♡",
+    "You showed up and gave it your all. That's my bebu! ♡",
+    "Every set done, no excuses. You're absolutely incredible, Bebu! ♡",
+    "You just did that. All of it. I'm so in love with you, Bebu! ♡",
+    "Strongest girl in the room — and that room is wherever you are, Bebu. ♡",
+    "You didn't skip, you didn't quit. That's everything. So proud of my bebu! ♡",
+    "Your dedication is seriously so attractive. Keep going, Bebu! ♡",
+    "All sets, all done. You make this look effortless, bebu! ♡",
+    "You put in the work quietly and that makes it even more special, Bebu. ♡",
+    "You worked hard and finished strong. That's my bebu! ♡",
+    "Not a single set skipped. You're built different, Bebu. ♡",
+    "The discipline you have is unreal. I'm so lucky it's you, Bebu. ♡",
+    "Every drop of sweat was worth it. You're amazing, bebu! ♡",
+    "Done and done. You never stop impressing me, bebu. ♡",
+    "You came, you lifted, you conquered. I adore you so much, Bebu! ♡",
+    "All finished and still the most beautiful girl I know. My Bebu! ♡",
+    "This workout didn't stand a chance against you. My Bebu! ♡",
+    "Consistent, strong, and stunning — that's just who you are, Bebu. ♡",
+    "Workout complete. You deserve all the rest and all my hugs, Bebu. ♡"
+  ];
+
+  // ── Confetti ──
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let confettiPieces = [];
+  let confettiRAF = null;
+  let confettiRunning = false;
+
+  function spawnPiece() {
+    const colors = ['#f48fb1','#ce93d8','#f06292','#ba68c8','#fff176','#80deea','#a5d6a7','#ffb74d'];
+    confettiPieces.push({
+      x: Math.random() * canvas.width,
+      y: -12,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 5 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI * 2,
+      vx: (Math.random() - 0.5) * 3,
+      vy: Math.random() * 3 + 1.5,
+      vr: (Math.random() - 0.5) * 0.15,
+      opacity: 1
+    });
+  }
+
+  let spawnTimer = null;
+  function startSpawning() {
+    spawnTimer = setInterval(() => {
+      if (confettiRunning) {
+        for (let i = 0; i < 4; i++) spawnPiece();
+      }
+    }, 80);
+  }
+
+  function launchConfetti() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.classList.add('show');
+    confettiPieces = [];
+    confettiRunning = true;
+    // burst on open
+    for (let i = 0; i < 80; i++) spawnPiece();
+    startSpawning();
+    animateConfetti();
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiPieces = confettiPieces.filter(p => p.opacity > 0);
+
+    confettiPieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      // fade only when below screen if not running, otherwise keep alive
+      if (!confettiRunning && p.y > canvas.height * 0.8) p.opacity -= 0.03;
+      else if (p.y > canvas.height + 20) p.opacity = 0; // recycle off-screen
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+
+    if (confettiRunning || confettiPieces.length > 0) {
+      confettiRAF = requestAnimationFrame(animateConfetti);
+    } else {
+      canvas.classList.remove('show');
+    }
+  }
+
+  function stopConfetti() {
+    confettiRunning = false;
+    clearInterval(spawnTimer);
+    cancelAnimationFrame(confettiRAF);
+    confettiPieces = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.classList.remove('show');
+  }
+
+  function showCongrats() {
+    // Pick a random message and set it
+    const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+    document.getElementById('congrats-msg').textContent = msg;
+    launchConfetti();
+    setTimeout(() => {
+      document.getElementById('congrats').classList.add('show');
+    }, 400);
+  }
+
+  function closeCongrats() {
+    document.getElementById('congrats').classList.remove('show');
+    stopConfetti();
+    const card = document.getElementById('congrats-card');
+    card.style.transform = '';
+    card.style.left = '';
+    card.style.top = '';
+    card.style.position = '';
+    card.style.margin = '';
+    const overlay = document.getElementById('congrats');
+    overlay.style.alignItems = '';
+    overlay.style.justifyContent = '';
+  }
+
+  function closeCongratsAndReset() {
+    closeCongrats();
+    resetAll();
+  }
+
+  // ── Draggable congrats card ──
+  (function() {
+    const overlay = document.getElementById('congrats');
+    const card = document.getElementById('congrats-card');
+    let dragging = false, startX, startY, origX, origY;
+
+    function getCardCenter() {
+      const r = card.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    }
+
+    function onDown(e) {
+      if (e.target.closest('button')) return;
+      dragging = true;
+      const pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX; startY = pt.clientY;
+      const r = card.getBoundingClientRect();
+      origX = r.left; origY = r.top;
+      // switch to fixed absolute positioning within overlay
+      card.style.position = 'fixed';
+      card.style.left = origX + 'px';
+      card.style.top  = origY + 'px';
+      card.style.transform = 'none';
+      card.style.margin = '0';
+      overlay.style.alignItems = 'unset';
+      overlay.style.justifyContent = 'unset';
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      const pt = e.touches ? e.touches[0] : e;
+      const dx = pt.clientX - startX;
+      const dy = pt.clientY - startY;
+      card.style.left = (origX + dx) + 'px';
+      card.style.top  = (origY + dy) + 'px';
+      e.preventDefault();
+    }
+
+    function onUp() { dragging = false; }
+
+    card.addEventListener('mousedown', onDown);
+    card.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchend', onUp);
+  })();
+
+  function checkAllDone() {
+    const done = document.querySelectorAll('.exercise.done').length;
+    if (done === TOTAL_EXERCISES) {
+      setTimeout(showCongrats, 500);
+    }
+  }
+
+  // ── Exercise interactions ──
+  document.querySelectorAll('.exercise').forEach(row => {
+    let holdTimer = null;
+    let lastTap = 0;
+
+    function startHold(e) {
+      if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
+      if (row.classList.contains('done')) return;
+      row.classList.add('pressing');
+      holdTimer = setTimeout(() => {
+        row.classList.remove('pressing');
+        logSet(row);
+      }, HOLD_MS);
+    }
+
+    function cancelHold(e) {
+      if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+      }
+      row.classList.remove('pressing');
+
+      // Double-tap detection
+      if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
+      const now = Date.now();
+      if (now - lastTap < DOUBLE_TAP_MS) {
+        undoSet(row);
+        lastTap = 0;
+      } else {
+        lastTap = now;
+      }
+    }
+
+    row.addEventListener('touchstart', startHold, { passive: true });
+    row.addEventListener('touchend', cancelHold);
+    row.addEventListener('touchcancel', () => {
+      clearTimeout(holdTimer);
+      row.classList.remove('pressing');
+    });
+    row.addEventListener('mousedown', startHold);
+    row.addEventListener('mouseup', cancelHold);
+    row.addEventListener('mouseleave', () => {
+      clearTimeout(holdTimer);
+      row.classList.remove('pressing');
+    });
+  });
+
+  function logSet(row) {
+    const total = parseInt(row.dataset.sets);
+    let done = parseInt(row.dataset.done) + 1;
+    row.dataset.done = done;
+
+    const dots = row.querySelectorAll('.dot');
+    if (dots[done - 1]) dots[done - 1].classList.add('filled');
+
+    const pill = row.querySelector('.status-pill');
+    clearTimeout(row._pillTimer);
+
+    if (done < total) {
+      const left = total - done;
+      pill.textContent = `Set ${done} done — ${left} more to go!`;
+    } else {
+      pill.textContent = '✓ All sets done!';
+      setTimeout(() => {
+        row.classList.add('done');
+        checkAllDone();
+      }, 300);
+    }
+
+    pill.classList.add('show');
+    row._pillTimer = setTimeout(() => pill.classList.remove('show'), 1800);
+  }
+
+  function undoSet(row) {
+    let done = parseInt(row.dataset.done);
+    if (done <= 0) return;
+
+    // If it was fully done, un-done it
+    row.classList.remove('done');
+
+    done--;
+    row.dataset.done = done;
+
+    const dots = row.querySelectorAll('.dot');
+    dots[done].classList.remove('filled');
+
+    const undo = row.querySelector('.undo-pill');
+    clearTimeout(row._undoTimer);
+    undo.textContent = done === 0 ? 'Set removed — back to 0' : `Back to ${done} set${done > 1 ? 's' : ''}`;
+    undo.classList.add('show');
+    row._undoTimer = setTimeout(() => undo.classList.remove('show'), 1600);
+
+    // Hide status pill if showing
+    row.querySelector('.status-pill').classList.remove('show');
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.exercise').forEach(row => {
+      row.dataset.done = 0;
+      row.classList.remove('done', 'pressing');
+      row.querySelectorAll('.dot').forEach(d => d.classList.remove('filled'));
+      row.querySelector('.status-pill').classList.remove('show');
+      row.querySelector('.undo-pill').classList.remove('show');
+    });
+  }
+</script>
 </body>
 </html>
