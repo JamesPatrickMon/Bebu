@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#f8bbd0">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Bebu's Weekly Workout</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,16 +16,22 @@
 
     html {
       -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      text-size-adjust: 100%;
       touch-action: manipulation;
+      height: 100%;
     }
 
     body {
       min-height: 100vh;
       min-height: 100dvh;
+      height: 100%;
       background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 40%, #f3e5f5 100%);
+      background-attachment: fixed;
       font-family: 'DM Sans', sans-serif;
       -webkit-font-smoothing: antialiased;
-      overscroll-behavior: none;
+      -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior-y: none;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -36,7 +44,9 @@
       padding-right: max(1rem, env(safe-area-inset-right));
       padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -109,11 +119,13 @@
       color: #c2185b;
       text-decoration: none;
       margin-top: 8px;
-      padding: 6px 12px;
+      padding: 8px 14px;
       background: rgba(194,24,91,0.08);
       border-radius: 99px;
       font-weight: 500;
-      min-height: 36px;
+      min-height: 40px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .video-link:active { background: rgba(194,24,91,0.18); }
 
@@ -127,7 +139,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 11px 10px;
+      padding: 12px 10px;
       border-bottom: 1px solid rgba(216,120,160,0.1);
       border-radius: 12px;
       margin: 2px 0;
@@ -135,9 +147,12 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
       transition: background 0.3s, box-shadow 0.3s;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
+      /* Ensure comfortable tap target height on mobile */
+      min-height: 56px;
     }
     .exercise:last-of-type { border-bottom: none; }
 
@@ -162,6 +177,18 @@
       box-shadow: 0 2px 14px rgba(76,175,80,0.13);
     }
     .exercise.done::before { display: none; }
+
+    /* Soft yellow = most recently completed exercise */
+    .exercise.last-done {
+      background: linear-gradient(135deg, rgba(255,253,230,0.38), rgba(255,249,190,0.22)) !important;
+      border-color: rgba(210,185,60,0.12) !important;
+      box-shadow: 0 2px 8px rgba(210,185,60,0.07) !important;
+    }
+    .exercise.last-done .ex-name { color: #4a0e2a !important; }
+    .exercise.last-done .ex-detail { color: #ad6b8a !important; }
+    .exercise.last-done .sets-label { color: #880e4f !important; }
+    .exercise.last-done .dot.filled { background: #c2185b !important; border-color: #c2185b !important; }
+    .exercise.last-done .dot:not(.filled) { border-color: #f48fb1 !important; }
 
     .num {
       width: 32px; height: 32px;
@@ -241,7 +268,7 @@
       background: rgba(194,24,91,0.08);
       border: none;
       border-radius: 99px;
-      padding: 5px 10px;
+      padding: 6px 12px;
       cursor: pointer;
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
@@ -249,8 +276,11 @@
       text-decoration: none;
       display: flex;
       align-items: center;
-      min-height: 28px;
+      justify-content: center;
+      min-height: 32px;
+      min-width: 56px;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
       transition: background 0.15s;
       position: relative;
       z-index: 2;
@@ -274,6 +304,7 @@
       transition: opacity 0.18s, transform 0.18s;
       font-family: 'DM Sans', sans-serif;
       box-shadow: 0 4px 14px rgba(194,24,91,0.25);
+      will-change: transform, opacity;
     }
     .status-pill.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .exercise.done .status-pill { background: #43a047; }
@@ -296,6 +327,7 @@
       transition: opacity 0.18s, transform 0.18s;
       font-family: 'DM Sans', sans-serif;
       box-shadow: 0 4px 14px rgba(229,115,115,0.3);
+      will-change: transform, opacity;
     }
     .undo-pill.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
@@ -326,10 +358,12 @@
       background: none;
       border: 1px solid rgba(216,120,160,0.35);
       border-radius: 99px;
-      padding: 7px 20px;
+      padding: 10px 24px;
+      min-height: 40px;
       cursor: pointer;
       font-family: 'DM Sans', sans-serif;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
       transition: background 0.15s;
     }
     .reset-btn:active { background: rgba(216,120,160,0.12); }
@@ -362,6 +396,9 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      margin-bottom: env(safe-area-inset-bottom, 0px);
+      will-change: transform;
     }
     .congrats-card:active { cursor: grabbing; }
 
@@ -372,8 +409,8 @@
 
     .congrats-x {
       position: absolute;
-      top: 10px; right: 12px;
-      width: 26px; height: 26px;
+      top: 8px; right: 8px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       background: rgba(216,120,160,0.15);
       border: none;
@@ -385,6 +422,8 @@
       -webkit-tap-highlight-color: transparent;
       line-height: 1;
       padding: 0;
+      /* Larger invisible tap area */
+      touch-action: manipulation;
     }
     .congrats-x:active { background: rgba(216,120,160,0.3); }
 
@@ -406,12 +445,14 @@
       color: #fff;
       border: none;
       border-radius: 99px;
-      padding: 9px 24px;
-      font-size: 13px;
+      padding: 12px 28px;
+      min-height: 44px;
+      font-size: 14px;
       font-weight: 500;
       font-family: 'DM Sans', sans-serif;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .congrats-close:active { opacity: 0.85; }
 
@@ -424,6 +465,26 @@
       display: none;
     }
     #confetti-canvas.show { display: block; }
+
+    /* ── Small phones (iPhone SE, Galaxy A series) ── */
+    @media (max-width: 375px) {
+      .card { padding: 1.25rem 1rem 1.5rem; }
+      .routine-title { font-size: 18px; }
+      .exercise { gap: 8px; padding: 10px 8px; min-height: 52px; }
+      .num { width: 28px; height: 28px; font-size: 12px; }
+      .right-col { gap: 4px; }
+      .congrats-card { padding: 1.5rem 1.25rem 1.25rem; }
+    }
+
+    /* ── Landscape phones ── */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .wrap { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+      .card { padding: 1rem 1.25rem; }
+      .routine-title { font-size: 18px; margin-bottom: 2px; }
+      .meta { display: none; }
+      .divider { margin: 0.5rem 0 0.25rem; }
+      .exercise { min-height: 46px; padding: 8px 10px; }
+    }
   </style>
 </head>
 <body>
@@ -557,7 +618,7 @@
     </div>
 
     <hr class="divider">
-    <p class="hint">Hold 0.8 sec to log a set &nbsp;·&nbsp; Double-tap to undo last set ♡</p>
+    <p class="hint">Hold 0.8 sec to log a set &nbsp;·&nbsp; Triple-tap to undo last set ♡</p>
     <p class="footer">Increase to 12 reps when 10 feels easy.<br>Once 12 feels easy, increase weight and return to 10 reps ♡</p>
     <button class="reset-btn" onclick="resetAll()">Reset workout</button>
   </div>
@@ -565,7 +626,6 @@
 
 <script>
   const HOLD_MS = 800;
-  const DOUBLE_TAP_MS = 300;
   const TOTAL_EXERCISES = document.querySelectorAll('.exercise').length;
 
   // ── 20 random encouraging messages ──
@@ -761,16 +821,41 @@
   // ── Exercise interactions ──
   document.querySelectorAll('.exercise').forEach(row => {
     let holdTimer = null;
-    let lastTap = 0;
+    let holdFired = false;
+    let tapCount = 0;
+    let tapResetTimer = null;
+    const TRIPLE_TAP_WINDOW = 700;
 
     function startHold(e) {
       if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
+      // Allow taps on done rows (for undo), just don't start hold timer
       if (row.classList.contains('done')) return;
+
+      holdFired = false;
       row.classList.add('pressing');
       holdTimer = setTimeout(() => {
+        holdFired = true;
+        holdTimer = null;
         row.classList.remove('pressing');
+        tapCount = 0;
+        clearTimeout(tapResetTimer);
         logSet(row);
       }, HOLD_MS);
+    }
+
+    function handleTap(e) {
+      if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
+      if (holdFired) { holdFired = false; return; } // hold already handled it
+
+      tapCount++;
+      clearTimeout(tapResetTimer);
+
+      if (tapCount >= 3) {
+        tapCount = 0;
+        undoSet(row);
+      } else {
+        tapResetTimer = setTimeout(() => { tapCount = 0; }, TRIPLE_TAP_WINDOW);
+      }
     }
 
     function cancelHold(e) {
@@ -779,31 +864,67 @@
         holdTimer = null;
       }
       row.classList.remove('pressing');
-
-      // Double-tap detection
-      if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
-      const now = Date.now();
-      if (now - lastTap < DOUBLE_TAP_MS) {
-        undoSet(row);
-        lastTap = 0;
-      } else {
-        lastTap = now;
-      }
+      handleTap(e);
     }
 
     row.addEventListener('touchstart', startHold, { passive: true });
     row.addEventListener('touchend', cancelHold);
     row.addEventListener('touchcancel', () => {
       clearTimeout(holdTimer);
+      holdTimer = null;
+      holdFired = false;
       row.classList.remove('pressing');
+      tapCount = 0;
     });
     row.addEventListener('mousedown', startHold);
     row.addEventListener('mouseup', cancelHold);
     row.addEventListener('mouseleave', () => {
       clearTimeout(holdTimer);
+      holdTimer = null;
       row.classList.remove('pressing');
     });
   });
+
+  // ── localStorage persistence ──
+  const STORAGE_KEY = 'bebu_workout_v1';
+
+  function saveState() {
+    const rows = document.querySelectorAll('.exercise');
+    const state = Array.from(rows).map((row, i) => ({
+      done: parseInt(row.dataset.done),
+      isDone: row.classList.contains('done'),
+      isLastDone: row.classList.contains('last-done')
+    }));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      const rows = document.querySelectorAll('.exercise');
+      rows.forEach((row, i) => {
+        if (!state[i]) return;
+        const { done, isDone, isLastDone } = state[i];
+        row.dataset.done = done;
+        // fill dots
+        const dots = row.querySelectorAll('.dot');
+        for (let d = 0; d < done; d++) { if (dots[d]) dots[d].classList.add('filled'); }
+        if (isDone) row.classList.add('done');
+        if (isLastDone) row.classList.add('last-done');
+      });
+    } catch(e) {}
+  }
+
+  // Load saved state on page ready
+  loadState();
+
+  // ── Last-done highlight helper ──
+  function setLastDone(targetRow) {
+    document.querySelectorAll('.exercise').forEach(r => r.classList.remove('last-done'));
+    if (targetRow) targetRow.classList.add('last-done');
+  }
 
   function logSet(row) {
     const total = parseInt(row.dataset.sets);
@@ -812,6 +933,9 @@
 
     const dots = row.querySelectorAll('.dot');
     if (dots[done - 1]) dots[done - 1].classList.add('filled');
+
+    // Mark as last done
+    setLastDone(row);
 
     const pill = row.querySelector('.status-pill');
     clearTimeout(row._pillTimer);
@@ -823,26 +947,29 @@
       pill.textContent = '✓ All sets done!';
       setTimeout(() => {
         row.classList.add('done');
+        row.classList.remove('last-done'); // green takes over, no yellow needed
         checkAllDone();
       }, 300);
     }
 
     pill.classList.add('show');
     row._pillTimer = setTimeout(() => pill.classList.remove('show'), 1800);
+    saveState();
   }
 
   function undoSet(row) {
     let done = parseInt(row.dataset.done);
     if (done <= 0) return;
 
-    // If it was fully done, un-done it
     row.classList.remove('done');
-
     done--;
     row.dataset.done = done;
 
     const dots = row.querySelectorAll('.dot');
     dots[done].classList.remove('filled');
+
+    // Re-highlight as last touched
+    setLastDone(done > 0 ? row : null);
 
     const undo = row.querySelector('.undo-pill');
     clearTimeout(row._undoTimer);
@@ -850,18 +977,19 @@
     undo.classList.add('show');
     row._undoTimer = setTimeout(() => undo.classList.remove('show'), 1600);
 
-    // Hide status pill if showing
     row.querySelector('.status-pill').classList.remove('show');
+    saveState();
   }
 
   function resetAll() {
     document.querySelectorAll('.exercise').forEach(row => {
       row.dataset.done = 0;
-      row.classList.remove('done', 'pressing');
+      row.classList.remove('done', 'pressing', 'last-done');
       row.querySelectorAll('.dot').forEach(d => d.classList.remove('filled'));
       row.querySelector('.status-pill').classList.remove('show');
       row.querySelector('.undo-pill').classList.remove('show');
     });
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
   }
 </script>
 </body>
