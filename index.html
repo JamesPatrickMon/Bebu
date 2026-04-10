@@ -96,6 +96,29 @@
       line-height: 1;
     }
 
+    /* ── Settings gear ── */
+    .settings-btn {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      width: 32px; height: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.28;
+      padding: 4px;
+      border-radius: 50%;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: opacity 0.2s, background 0.2s;
+      z-index: 5;
+    }
+    .settings-btn:active { opacity: 0.6; background: rgba(194,24,91,0.08); }
+    .settings-btn svg { width: 18px; height: 18px; }
+
     .routine-title {
       font-family: 'DM Serif Display', serif;
       font-size: clamp(20px, 5.5vw, 24px);
@@ -135,6 +158,7 @@
       margin: 1rem 0 0.5rem;
     }
 
+    /* ── Exercise row ── */
     .exercise {
       display: flex;
       align-items: center;
@@ -151,7 +175,6 @@
       transition: background 0.3s, box-shadow 0.3s;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
-      /* Ensure comfortable tap target height on mobile */
       min-height: 56px;
     }
     .exercise:last-of-type { border-bottom: none; }
@@ -178,7 +201,7 @@
     }
     .exercise.done::before { display: none; }
 
-    /* Soft yellow = most recently completed exercise */
+    /* Faint yellow = last touched */
     .exercise.last-done {
       background: linear-gradient(135deg, rgba(255,253,230,0.38), rgba(255,249,190,0.22)) !important;
       border-color: rgba(210,185,60,0.12) !important;
@@ -309,7 +332,6 @@
     .status-pill.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .exercise.done .status-pill { background: #43a047; }
 
-    /* undo pill (red-ish) */
     .undo-pill {
       position: absolute;
       top: 50%; left: 50%;
@@ -368,6 +390,139 @@
     }
     .reset-btn:active { background: rgba(216,120,160,0.12); }
 
+    /* ── Settings Modal ── */
+    #settings-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(252,228,236,0.4);
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    #settings-overlay.show { display: flex; }
+
+    .settings-sheet {
+      background: rgba(255,255,255,0.96);
+      border-radius: 24px 24px 0 0;
+      padding: 1.25rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      width: 100%;
+      max-width: 460px;
+      max-height: 85vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 -8px 32px rgba(216,120,160,0.18);
+      animation: slideUp 0.3s cubic-bezier(0.34,1.26,0.64,1) forwards;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .settings-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: #880e4f;
+    }
+    .settings-close {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(216,120,160,0.12);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      color: #ad6b8a;
+      font-family: 'DM Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .settings-close:active { background: rgba(216,120,160,0.28); }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(216,120,160,0.1);
+    }
+    .settings-row:last-of-type { border-bottom: none; }
+
+    .settings-ex-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #4a0e2a;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .ctrl-label {
+      font-size: 9px;
+      color: #ad6b8a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ctrl-btn {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(194,24,91,0.25);
+      background: rgba(194,24,91,0.06);
+      color: #c2185b;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .ctrl-btn:active { background: rgba(194,24,91,0.18); }
+    .ctrl-val {
+      font-size: 14px;
+      font-weight: 500;
+      color: #880e4f;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    .settings-note {
+      font-size: 11px;
+      color: #ad6b8a;
+      text-align: center;
+      margin-top: 1rem;
+      font-style: italic;
+      opacity: 0.8;
+    }
+
     /* ── Congrats overlay ── */
     #congrats {
       display: none;
@@ -383,7 +538,6 @@
     .congrats-card {
       background: rgba(255,255,255,0.55);
       border: 1px solid rgba(255,255,255,0.75);
-      backdrop-filter: none;
       border-radius: 24px;
       padding: 1.75rem 1.5rem 1.5rem;
       max-width: 280px;
@@ -397,6 +551,7 @@
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
+      text-align: center;
       margin-bottom: env(safe-area-inset-bottom, 0px);
       will-change: transform;
     }
@@ -420,10 +575,8 @@
       color: #ad6b8a;
       font-family: 'DM Sans', sans-serif;
       -webkit-tap-highlight-color: transparent;
-      line-height: 1;
-      padding: 0;
-      /* Larger invisible tap area */
       touch-action: manipulation;
+      padding: 0;
     }
     .congrats-x:active { background: rgba(216,120,160,0.3); }
 
@@ -456,7 +609,7 @@
     }
     .congrats-close:active { opacity: 0.85; }
 
-    /* ── Confetti canvas ── */
+    /* ── Confetti ── */
     #confetti-canvas {
       position: fixed;
       inset: 0;
@@ -466,7 +619,7 @@
     }
     #confetti-canvas.show { display: block; }
 
-    /* ── Small phones (iPhone SE, Galaxy A series) ── */
+    /* ── Small phones ── */
     @media (max-width: 375px) {
       .card { padding: 1.25rem 1rem 1.5rem; }
       .routine-title { font-size: 18px; }
@@ -474,6 +627,7 @@
       .num { width: 28px; height: 28px; font-size: 12px; }
       .right-col { gap: 4px; }
       .congrats-card { padding: 1.5rem 1.25rem 1.25rem; }
+      .ctrl-btn { width: 26px; height: 26px; font-size: 14px; }
     }
 
     /* ── Landscape phones ── */
@@ -489,30 +643,50 @@
 </head>
 <body>
 
-<!-- Confetti -->
 <canvas id="confetti-canvas"></canvas>
 
 <!-- Congrats overlay -->
 <div id="congrats">
-  <div class="congrats-card" id="congrats-card" style="text-align:center;">
+  <div class="congrats-card" id="congrats-card">
     <button class="congrats-x" onclick="closeCongrats()">✕</button>
     <div class="congrats-emoji">🎉</div>
     <p class="congrats-title">Congrats, Bebu!</p>
-    <p class="congrats-sub" id="congrats-msg">You crushed every single set today. So proud of you! ♡</p>
+    <p class="congrats-sub" id="congrats-msg"></p>
     <button class="congrats-close" onclick="closeCongratsAndReset()">Start fresh 🌸</button>
+  </div>
+</div>
+
+<!-- Settings bottom sheet -->
+<div id="settings-overlay" onclick="handleSettingsOverlayClick(event)">
+  <div class="settings-sheet" id="settings-sheet">
+    <div class="settings-header">
+      <span class="settings-title">Edit Workout</span>
+      <button class="settings-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div id="settings-rows"></div>
+    <p class="settings-note">Changes apply immediately and are saved ♡</p>
   </div>
 </div>
 
 <div class="wrap">
   <div class="card">
     <div class="deco">♡</div>
+
+    <!-- Settings gear — lowkey, top right -->
+    <button class="settings-btn" onclick="openSettings()" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c2185b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+
     <p class="routine-title">Bebu's Weekly Workout</p>
     <p class="meta">Monday · Wednesday · Friday &nbsp;|&nbsp; 60s rest between sets</p>
     <a class="video-link" href="https://www.youtube.com/watch?v=-sq5i4-nVm0" target="_blank">▶ Reference video</a>
 
     <hr class="divider">
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="10" data-done="0" data-label="reps">
       <div class="num"><span class="num-text">1</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Hip thrusts</p>
@@ -527,7 +701,7 @@
       <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="10" data-done="0" data-label="reps">
       <div class="num"><span class="num-text">2</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">RDL to front squat</p>
@@ -542,7 +716,7 @@
       <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="10" data-done="0" data-label="reps">
       <div class="num"><span class="num-text">3</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">B-stance RDL row</p>
@@ -557,7 +731,7 @@
       <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="10" data-done="0" data-label="reps">
       <div class="num"><span class="num-text">4</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Shoulder press</p>
@@ -572,7 +746,7 @@
       <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="10" data-done="0" data-label="reps">
       <div class="num"><span class="num-text">5</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Dumbbell floor press</p>
@@ -587,7 +761,7 @@
       <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="10" data-done="0" data-label="reps">
       <div class="num"><span class="num-text">6</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Weighted dead bug</p>
@@ -602,7 +776,7 @@
       <div class="undo-pill"></div>
     </div>
 
-    <div class="exercise" data-sets="3" data-done="0">
+    <div class="exercise" data-sets="3" data-reps="30" data-done="0" data-label="secs">
       <div class="num"><span class="num-text">7</span><svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="ex-info">
         <p class="ex-name">Plank</p>
@@ -627,17 +801,18 @@
 <script>
   const HOLD_MS = 800;
   const TOTAL_EXERCISES = document.querySelectorAll('.exercise').length;
+  const STORAGE_KEY = 'bebu_workout_v2';
 
-  // ── 20 random encouraging messages ──
+  // ── Messages ──
   const MESSAGES = [
-    "You crushed every single set today. So proud of you, Bebu! ♡",
+    "You crushed every single set today. So proud of you Bebu mwah mwah mwah! ♡",
     "Look at you go, bebu. Every rep was worth it. lablab! ♡",
     "You showed up and gave it your all. That's my bebu! ♡",
     "Every set done, no excuses. You're absolutely incredible, Bebu! ♡",
     "You just did that. All of it. I'm so in love with you, Bebu! ♡",
     "Strongest girl in the room — and that room is wherever you are, Bebu. ♡",
     "You didn't skip, you didn't quit. That's everything. So proud of my bebu! ♡",
-    "Your dedication is seriously so attractive. Keep going, Bebu! ♡",
+    "Your dedication is seriously so attractive and you inspire me too Bebu! ♡",
     "All sets, all done. You make this look effortless, bebu! ♡",
     "You put in the work quietly and that makes it even more special, Bebu. ♡",
     "You worked hard and finished strong. That's my bebu! ♡",
@@ -645,10 +820,9 @@
     "The discipline you have is unreal. I'm so lucky it's you, Bebu. ♡",
     "Every drop of sweat was worth it. You're amazing, bebu! ♡",
     "Done and done. You never stop impressing me, bebu. ♡",
-    "You came, you lifted, you conquered. I adore you so much, Bebu! ♡",
+    "You came, you lifted, you conquered. Get strong bebu for our 5 children in the future hahahaha :P ♡",
     "All finished and still the most beautiful girl I know. My Bebu! ♡",
     "This workout didn't stand a chance against you. My Bebu! ♡",
-    "Consistent, strong, and stunning — that's just who you are, Bebu. ♡",
     "Workout complete. You deserve all the rest and all my hugs, Bebu. ♡"
   ];
 
@@ -658,30 +832,18 @@
   let confettiPieces = [];
   let confettiRAF = null;
   let confettiRunning = false;
+  let spawnTimer = null;
 
   function spawnPiece() {
     const colors = ['#f48fb1','#ce93d8','#f06292','#ba68c8','#fff176','#80deea','#a5d6a7','#ffb74d'];
     confettiPieces.push({
-      x: Math.random() * canvas.width,
-      y: -12,
-      w: Math.random() * 10 + 5,
-      h: Math.random() * 5 + 3,
+      x: Math.random() * canvas.width, y: -12,
+      w: Math.random() * 10 + 5, h: Math.random() * 5 + 3,
       color: colors[Math.floor(Math.random() * colors.length)],
       rot: Math.random() * Math.PI * 2,
-      vx: (Math.random() - 0.5) * 3,
-      vy: Math.random() * 3 + 1.5,
-      vr: (Math.random() - 0.5) * 0.15,
-      opacity: 1
+      vx: (Math.random() - 0.5) * 3, vy: Math.random() * 3 + 1.5,
+      vr: (Math.random() - 0.5) * 0.15, opacity: 1
     });
-  }
-
-  let spawnTimer = null;
-  function startSpawning() {
-    spawnTimer = setInterval(() => {
-      if (confettiRunning) {
-        for (let i = 0; i < 4; i++) spawnPiece();
-      }
-    }, 80);
   }
 
   function launchConfetti() {
@@ -690,24 +852,17 @@
     canvas.classList.add('show');
     confettiPieces = [];
     confettiRunning = true;
-    // burst on open
     for (let i = 0; i < 80; i++) spawnPiece();
-    startSpawning();
+    spawnTimer = setInterval(() => { if (confettiRunning) for (let i = 0; i < 4; i++) spawnPiece(); }, 80);
     animateConfetti();
   }
 
   function animateConfetti() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     confettiPieces = confettiPieces.filter(p => p.opacity > 0);
-
     confettiPieces.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.vr;
-      // fade only when below screen if not running, otherwise keep alive
-      if (!confettiRunning && p.y > canvas.height * 0.8) p.opacity -= 0.03;
-      else if (p.y > canvas.height + 20) p.opacity = 0; // recycle off-screen
-
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      if (p.y > canvas.height + 20) p.opacity = 0;
       ctx.save();
       ctx.globalAlpha = Math.max(0, p.opacity);
       ctx.translate(p.x, p.y);
@@ -716,12 +871,8 @@
       ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       ctx.restore();
     });
-
-    if (confettiRunning || confettiPieces.length > 0) {
-      confettiRAF = requestAnimationFrame(animateConfetti);
-    } else {
-      canvas.classList.remove('show');
-    }
+    if (confettiRunning || confettiPieces.length > 0) confettiRAF = requestAnimationFrame(animateConfetti);
+    else canvas.classList.remove('show');
   }
 
   function stopConfetti() {
@@ -733,45 +884,30 @@
     canvas.classList.remove('show');
   }
 
+  // ── Congrats ──
   function showCongrats() {
-    // Pick a random message and set it
-    const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
-    document.getElementById('congrats-msg').textContent = msg;
+    document.getElementById('congrats-msg').textContent = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
     launchConfetti();
-    setTimeout(() => {
-      document.getElementById('congrats').classList.add('show');
-    }, 400);
+    setTimeout(() => document.getElementById('congrats').classList.add('show'), 400);
   }
 
   function closeCongrats() {
     document.getElementById('congrats').classList.remove('show');
     stopConfetti();
     const card = document.getElementById('congrats-card');
-    card.style.transform = '';
-    card.style.left = '';
-    card.style.top = '';
-    card.style.position = '';
-    card.style.margin = '';
+    card.style.cssText = '';
     const overlay = document.getElementById('congrats');
     overlay.style.alignItems = '';
     overlay.style.justifyContent = '';
   }
 
-  function closeCongratsAndReset() {
-    closeCongrats();
-    resetAll();
-  }
+  function closeCongratsAndReset() { closeCongrats(); resetAll(); }
 
-  // ── Draggable congrats card ──
+  // ── Draggable congrats ──
   (function() {
     const overlay = document.getElementById('congrats');
     const card = document.getElementById('congrats-card');
     let dragging = false, startX, startY, origX, origY;
-
-    function getCardCenter() {
-      const r = card.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    }
 
     function onDown(e) {
       if (e.target.closest('button')) return;
@@ -780,27 +916,22 @@
       startX = pt.clientX; startY = pt.clientY;
       const r = card.getBoundingClientRect();
       origX = r.left; origY = r.top;
-      // switch to fixed absolute positioning within overlay
       card.style.position = 'fixed';
       card.style.left = origX + 'px';
-      card.style.top  = origY + 'px';
+      card.style.top = origY + 'px';
       card.style.transform = 'none';
       card.style.margin = '0';
       overlay.style.alignItems = 'unset';
       overlay.style.justifyContent = 'unset';
       e.preventDefault();
     }
-
     function onMove(e) {
       if (!dragging) return;
       const pt = e.touches ? e.touches[0] : e;
-      const dx = pt.clientX - startX;
-      const dy = pt.clientY - startY;
-      card.style.left = (origX + dx) + 'px';
-      card.style.top  = (origY + dy) + 'px';
+      card.style.left = (origX + pt.clientX - startX) + 'px';
+      card.style.top = (origY + pt.clientY - startY) + 'px';
       e.preventDefault();
     }
-
     function onUp() { dragging = false; }
 
     card.addEventListener('mousedown', onDown);
@@ -811,9 +942,141 @@
     window.addEventListener('touchend', onUp);
   })();
 
+  // ── Settings ──
+  function openSettings() {
+    buildSettingsRows();
+    document.getElementById('settings-overlay').classList.add('show');
+  }
+
+  function closeSettings() {
+    document.getElementById('settings-overlay').classList.remove('show');
+  }
+
+  function handleSettingsOverlayClick(e) {
+    if (e.target === document.getElementById('settings-overlay')) closeSettings();
+  }
+
+  function buildSettingsRows() {
+    const container = document.getElementById('settings-rows');
+    container.innerHTML = '';
+    document.querySelectorAll('.exercise').forEach((row, i) => {
+      const name = row.querySelector('.ex-name').textContent;
+      const sets = parseInt(row.dataset.sets);
+      const reps = parseInt(row.dataset.reps);
+      const label = row.dataset.label || 'reps';
+
+      const div = document.createElement('div');
+      div.className = 'settings-row';
+      div.innerHTML = `
+        <span class="settings-ex-name">${name}</span>
+        <div class="settings-controls">
+          <div class="ctrl-group">
+            <span class="ctrl-label">Sets</span>
+            <div class="ctrl-row">
+              <button class="ctrl-btn" onclick="adjustVal(${i},'sets',-1)">−</button>
+              <span class="ctrl-val" id="sets-val-${i}">${sets}</span>
+              <button class="ctrl-btn" onclick="adjustVal(${i},'sets',1)">+</button>
+            </div>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">${label}</span>
+            <div class="ctrl-row">
+              <button class="ctrl-btn" onclick="adjustVal(${i},'reps',-1)">−</button>
+              <span class="ctrl-val" id="reps-val-${i}">${reps}</span>
+              <button class="ctrl-btn" onclick="adjustVal(${i},'reps',1)">+</button>
+            </div>
+          </div>
+        </div>`;
+      container.appendChild(div);
+    });
+  }
+
+  function adjustVal(index, type, delta) {
+    const rows = document.querySelectorAll('.exercise');
+    const row = rows[index];
+    if (type === 'sets') {
+      let val = Math.max(1, Math.min(10, parseInt(row.dataset.sets) + delta));
+      row.dataset.sets = val;
+      document.getElementById(`sets-val-${index}`).textContent = val;
+      rebuildDots(row, val);
+    } else {
+      let val = Math.max(1, Math.min(99, parseInt(row.dataset.reps) + delta));
+      row.dataset.reps = val;
+      document.getElementById(`reps-val-${index}`).textContent = val;
+    }
+    updateSetsLabel(row);
+    saveState();
+  }
+
+  function rebuildDots(row, sets) {
+    const dotsContainer = row.querySelector('.set-dots');
+    const doneSets = parseInt(row.dataset.done);
+    dotsContainer.innerHTML = '';
+    for (let i = 0; i < sets; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i < doneSets ? ' filled' : '');
+      dotsContainer.appendChild(dot);
+    }
+    // If done > new sets, cap it
+    if (doneSets > sets) {
+      row.dataset.done = sets;
+      if (sets === parseInt(row.dataset.sets)) {
+        row.classList.add('done');
+      }
+    }
+  }
+
+  function updateSetsLabel(row) {
+    const sets = row.dataset.sets;
+    const reps = row.dataset.reps;
+    const label = row.dataset.label || 'reps';
+    row.querySelector('.sets-label').textContent = `${sets} × ${reps} ${label}`;
+  }
+
+  // ── localStorage ──
+  function saveState() {
+    const rows = document.querySelectorAll('.exercise');
+    const state = Array.from(rows).map(row => ({
+      done: parseInt(row.dataset.done),
+      sets: parseInt(row.dataset.sets),
+      reps: parseInt(row.dataset.reps),
+      isDone: row.classList.contains('done'),
+      isLastDone: row.classList.contains('last-done')
+    }));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      document.querySelectorAll('.exercise').forEach((row, i) => {
+        if (!state[i]) return;
+        const { done, sets, reps, isDone, isLastDone } = state[i];
+        if (sets) { row.dataset.sets = sets; rebuildDots(row, sets); }
+        if (reps) { row.dataset.reps = reps; }
+        row.dataset.done = done;
+        updateSetsLabel(row);
+        const dots = row.querySelectorAll('.dot');
+        for (let d = 0; d < done; d++) { if (dots[d]) dots[d].classList.add('filled'); }
+        if (isDone) row.classList.add('done');
+        if (isLastDone) row.classList.add('last-done');
+      });
+    } catch(e) {}
+  }
+
+  loadState();
+
+  // ── Last-done highlight ──
+  function setLastDone(targetRow) {
+    document.querySelectorAll('.exercise').forEach(r => r.classList.remove('last-done'));
+    if (targetRow) targetRow.classList.add('last-done');
+  }
+
+  // ── checkAllDone ──
   function checkAllDone() {
-    const done = document.querySelectorAll('.exercise.done').length;
-    if (done === TOTAL_EXERCISES) {
+    if (document.querySelectorAll('.exercise.done').length === TOTAL_EXERCISES) {
       setTimeout(showCongrats, 500);
     }
   }
@@ -828,9 +1091,7 @@
 
     function startHold(e) {
       if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
-      // Allow taps on done rows (for undo), just don't start hold timer
       if (row.classList.contains('done')) return;
-
       holdFired = false;
       row.classList.add('pressing');
       holdTimer = setTimeout(() => {
@@ -845,11 +1106,9 @@
 
     function handleTap(e) {
       if (e.target.closest('.ts-btn') || e.target.closest('.video-link')) return;
-      if (holdFired) { holdFired = false; return; } // hold already handled it
-
+      if (holdFired) { holdFired = false; return; }
       tapCount++;
       clearTimeout(tapResetTimer);
-
       if (tapCount >= 3) {
         tapCount = 0;
         undoSet(row);
@@ -859,10 +1118,7 @@
     }
 
     function cancelHold(e) {
-      if (holdTimer) {
-        clearTimeout(holdTimer);
-        holdTimer = null;
-      }
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
       row.classList.remove('pressing');
       handleTap(e);
     }
@@ -870,8 +1126,7 @@
     row.addEventListener('touchstart', startHold, { passive: true });
     row.addEventListener('touchend', cancelHold);
     row.addEventListener('touchcancel', () => {
-      clearTimeout(holdTimer);
-      holdTimer = null;
+      clearTimeout(holdTimer); holdTimer = null;
       holdFired = false;
       row.classList.remove('pressing');
       tapCount = 0;
@@ -879,108 +1134,52 @@
     row.addEventListener('mousedown', startHold);
     row.addEventListener('mouseup', cancelHold);
     row.addEventListener('mouseleave', () => {
-      clearTimeout(holdTimer);
-      holdTimer = null;
+      clearTimeout(holdTimer); holdTimer = null;
       row.classList.remove('pressing');
     });
   });
 
-  // ── localStorage persistence ──
-  const STORAGE_KEY = 'bebu_workout_v1';
-
-  function saveState() {
-    const rows = document.querySelectorAll('.exercise');
-    const state = Array.from(rows).map((row, i) => ({
-      done: parseInt(row.dataset.done),
-      isDone: row.classList.contains('done'),
-      isLastDone: row.classList.contains('last-done')
-    }));
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
-  }
-
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      const rows = document.querySelectorAll('.exercise');
-      rows.forEach((row, i) => {
-        if (!state[i]) return;
-        const { done, isDone, isLastDone } = state[i];
-        row.dataset.done = done;
-        // fill dots
-        const dots = row.querySelectorAll('.dot');
-        for (let d = 0; d < done; d++) { if (dots[d]) dots[d].classList.add('filled'); }
-        if (isDone) row.classList.add('done');
-        if (isLastDone) row.classList.add('last-done');
-      });
-    } catch(e) {}
-  }
-
-  // Load saved state on page ready
-  loadState();
-
-  // ── Last-done highlight helper ──
-  function setLastDone(targetRow) {
-    document.querySelectorAll('.exercise').forEach(r => r.classList.remove('last-done'));
-    if (targetRow) targetRow.classList.add('last-done');
-  }
-
+  // ── Log set ──
   function logSet(row) {
     const total = parseInt(row.dataset.sets);
     let done = parseInt(row.dataset.done) + 1;
     row.dataset.done = done;
-
     const dots = row.querySelectorAll('.dot');
     if (dots[done - 1]) dots[done - 1].classList.add('filled');
-
-    // Mark as last done
     setLastDone(row);
-
     const pill = row.querySelector('.status-pill');
     clearTimeout(row._pillTimer);
-
     if (done < total) {
-      const left = total - done;
-      pill.textContent = `Set ${done} done — ${left} more to go!`;
+      pill.textContent = `Set ${done} done — ${total - done} more to go!`;
     } else {
       pill.textContent = '✓ All sets done!';
-      setTimeout(() => {
-        row.classList.add('done');
-        row.classList.remove('last-done'); // green takes over, no yellow needed
-        checkAllDone();
-      }, 300);
+      setTimeout(() => { row.classList.add('done'); row.classList.remove('last-done'); checkAllDone(); }, 300);
     }
-
     pill.classList.add('show');
     row._pillTimer = setTimeout(() => pill.classList.remove('show'), 1800);
     saveState();
   }
 
+  // ── Undo set ──
   function undoSet(row) {
     let done = parseInt(row.dataset.done);
     if (done <= 0) return;
-
     row.classList.remove('done');
     done--;
     row.dataset.done = done;
-
     const dots = row.querySelectorAll('.dot');
-    dots[done].classList.remove('filled');
-
-    // Re-highlight as last touched
+    if (dots[done]) dots[done].classList.remove('filled');
     setLastDone(done > 0 ? row : null);
-
     const undo = row.querySelector('.undo-pill');
     clearTimeout(row._undoTimer);
-    undo.textContent = done === 0 ? 'Set removed — back to 0' : `Back to ${done} set${done > 1 ? 's' : ''}`;
+    undo.textContent = done === 0 ? 'Set removed — back to 0' : `Back to ${done} set${done !== 1 ? 's' : ''}`;
     undo.classList.add('show');
     row._undoTimer = setTimeout(() => undo.classList.remove('show'), 1600);
-
     row.querySelector('.status-pill').classList.remove('show');
     saveState();
   }
 
+  // ── Reset all ──
   function resetAll() {
     document.querySelectorAll('.exercise').forEach(row => {
       row.dataset.done = 0;
